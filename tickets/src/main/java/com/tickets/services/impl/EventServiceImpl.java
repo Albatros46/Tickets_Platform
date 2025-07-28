@@ -4,10 +4,13 @@ import com.tickets.exceptions.UserNotFoundException;
 import com.tickets.model.Event;
 import com.tickets.model.TicketType;
 import com.tickets.model.User;
+import com.tickets.repositories.EventRepository;
 import com.tickets.repositories.UserRepository;
 import com.tickets.request.CreateEventRequest;
 import com.tickets.services.EventService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,7 +21,7 @@ import java.util.UUID;
 public class EventServiceImpl implements EventService {
 
     private final UserRepository userRepository;
-
+    private final EventRepository eventRepository;
     @Override
     public Event createEvent(UUID organizerId, CreateEventRequest event) {
         User organizer=userRepository.findById(organizerId)
@@ -45,6 +48,13 @@ public class EventServiceImpl implements EventService {
         eventToCreate.setOrganizer(organizer);
         eventToCreate.setTicketTypes(ticketTypesToCreate);
 
-        return null;
+        return eventRepository.save(eventToCreate);
     }
+
+    @Override
+    public Page<Event> listEventsForOrganizer(UUID organizerId, Pageable pageable) {
+        return eventRepository.findByOrganizerId(organizerId,pageable);
+    }
+
+
 }
